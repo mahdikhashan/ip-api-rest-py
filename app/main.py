@@ -47,6 +47,8 @@ def get_ip():
     query_string_format = request.args.get("format")
     if query_string_format == "json":
         return make_response(ip.json(), 200)
+    else:
+        pass
 
     return make_response(str(ip), 200)
 
