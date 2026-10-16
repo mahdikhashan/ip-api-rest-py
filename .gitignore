@@ -2,3 +2,4 @@
 ip-rest-api-py.iml
 .venv/
 __pycache__/
+loadtest/report.html
