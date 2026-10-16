@@ -33,7 +33,7 @@ class IPDtoResponse:
         return self.ip
 
     def json(self):
-        return jsonify(ip=self.ip)
+        return jsonify(ip=self.ip, author="mahdikhashan1@gmail.com")
 
 
 def client_ip() -> str:
