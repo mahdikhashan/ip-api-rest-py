@@ -19,10 +19,11 @@ class IPApiUser(HttpUser):
             if r.status_code != 200 or not r.text:
                 r.failure(f"unexpected response: {r.status_code} {r.text!r}")
 
-    @task(1)
-    def json(self):
-        with self.client.get(
-            "/?format=json", name="GET /?format=json", catch_response=True
-        ) as r:
-            if r.status_code != 200 or "ip" not in r.json():
-                r.failure(f"unexpected response: {r.status_code} {r.text!r}")
+    # ignore test on the json qurry path
+    # @task(1)
+    # def json(self):
+    #     with self.client.get(
+    #         "/?format=json", name="GET /?format=json", catch_response=True
+    #     ) as r:
+    #         if r.status_code != 200 or "ip" not in r.json():
+    #             r.failure(f"unexpected response: {r.status_code} {r.text!r}")

@@ -33,13 +33,13 @@ class IPDtoResponse:
         return self.ip
 
     def json(self):
-        return jsonify(ip=self.ip, author="mahdikhashan1@gmail.com")
+        return jsonify(ip=self.ip)
 
 
 def client_ip() -> str:
     """Return the caller's IP, preferring the first X-Forwarded-For entry."""
     forwarded = request.headers.getlist("X-Forwarded-For")
-    return forwarded[0] if forwarded else request.remote_addr # pyright: ignore[reportReturnType]
+    return forwarded[0] if forwarded else request.remote_addr  # pyright: ignore[reportReturnType]
 
 
 @app.route("/", methods=["GET"])
