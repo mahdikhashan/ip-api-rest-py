@@ -39,3 +39,24 @@ steps:
       tags: |
         $(Build.BuildId)
         $(Build.SourceVersion)
+
+  - task: SSH@0
+    displayName: Deploy to Azure VM
+    inputs:
+      sshEndpoint: ssh-ip-api-rest-vm
+      runOptions: inline
+      inline: |
+        set -eu
+
+        cd /home/azureuser/ip-api-rest-py
+
+        git fetch origin main
+        git checkout --force "$(Build.SourceVersion)"
+
+        export IMAGE_TAG="$(Build.SourceVersion)"
+
+        echo "Deploying image: $IMAGE_TAG"
+
+        docker compose pull web
+        docker compose up -d --no-build
+        docker compose ps
