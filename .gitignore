@@ -1,2 +1,4 @@
 .idea/
 ip-rest-api-py.iml
+.venv/
+__pycache__/

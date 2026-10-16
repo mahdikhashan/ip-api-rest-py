@@ -1,14 +1,16 @@
-FROM continuumio/miniconda3
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-COPY env.yml .
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-RUN conda env create -f env.yml
-
-ENV PATH /opt/miniconda3/envs/ip-rest-api-py/bin:$PATH
-
-COPY . /app
 WORKDIR /app
 
-EXPOSE 5000
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
 
-CMD ["conda", "run", "-n", "ip-rest-api-py", "python", "app/main.py"]
+COPY . .
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8080
+
+CMD ["python", "-m", "app.main"]

@@ -1,6 +1,7 @@
+import os
 from dataclasses import dataclass
-from flask import Flask, request, jsonify, make_response
 
+from flask import Flask, jsonify, make_response, request
 
 app = Flask(__name__)
 
@@ -9,16 +10,14 @@ class UnhandledFormatValue(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
-        super().__init__()
+        super().__init__(message)
         self.message = message
         if status_code is not None:
             self.status_code = status_code
         self.payload = payload
 
     def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        return rv
+        return {**(self.payload or {}), "message": self.message}
 
 
 @app.errorhandler(UnhandledFormatValue)
@@ -37,21 +36,23 @@ class IPDtoResponse:
         return jsonify(ip=self.ip)
 
 
-@app.route("/", methods=['GET'])
+def client_ip() -> str:
+    """Return the caller's IP, preferring the first X-Forwarded-For entry."""
+    forwarded = request.headers.getlist("X-Forwarded-For")
+    return forwarded[0] if forwarded else request.remote_addr
+
+
+@app.route("/", methods=["GET"])
 def get_ip():
-    if request.headers.getlist("X-Forwarded-For"):
-        ip = IPDtoResponse(request.headers.getlist("X-Forwarded-For")[0])
-    else:
-        ip = IPDtoResponse(request.remote_addr)
-
-    query_string_format = request.args.get("format")
-    if query_string_format == "json":
+    ip = IPDtoResponse(client_ip())
+    if request.args.get("format") == "json":
         return make_response(ip.json(), 200)
-    else:
-        pass
-
     return make_response(str(ip), 200)
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        debug=os.environ.get("FLASK_DEBUG", "1") == "1",
+    )
