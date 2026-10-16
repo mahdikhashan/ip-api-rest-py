@@ -13,4 +13,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8080
 
-CMD ["python", "-m", "app.main"]
+CMD ["gunicorn", "app.main:app"]
