@@ -1,0 +1,41 @@
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  imageRepository: ip-api-rest-py
+  dockerRegistryServiceConnection: acr-ip-api-rest
+
+steps:
+  - checkout: self
+
+  - task: Docker@2
+    displayName: Build and label Docker image
+    inputs:
+      command: build
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: $(imageRepository)
+      Dockerfile: Dockerfile
+      buildContext: .
+      tags: |
+        $(Build.BuildId)
+        $(Build.SourceVersion)
+      arguments: |
+        --label org.opencontainers.image.source=$(Build.Repository.Uri)
+        --label org.opencontainers.image.revision=$(Build.SourceVersion)
+        --label org.opencontainers.image.version=$(Build.BuildId)
+
+  - task: Docker@2
+    displayName: Push image to Azure Container Registry
+    inputs:
+      command: push
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: $(imageRepository)
+      tags: |
+        $(Build.BuildId)
+        $(Build.SourceVersion)
